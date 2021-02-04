@@ -23,7 +23,7 @@
         <div class="twits">
             <form id="hashtag-form" action="/hashtag">
                 <input type="text" name="hashtag" placeholder="태그 검색">
-                <button class="btn">검색</button>
+                <button class="btn" type="submit">검색</button>
             </form>
             {% for twit in twits %}
                 <div class="twit">
@@ -32,6 +32,14 @@
                     <div class="twit-author">{{twit.User.nick}}</div>
                     {% if not followerIdList.includes(twit.User.id) and twit.User.id !== user.id %}
                         <button class="twit-follow">팔로우하기</button>
+                    {% endif %}
+                    {% if not like.includes(twit.id) %}
+                        <button class="like">좋아요</button>
+                    {% else %}
+                        <button class="unlike">좋아요 취소</button>
+                    {% endif %}
+                    {% if twit.User.id === user.id %}
+                        <button class="delete">삭제</button>
                     {% endif %}
                     <div class="twit-content">{{twit.content}}</div>
                     {% if twit.img %}
@@ -45,11 +53,25 @@
 
 {% block script %}
     <script>
+        document.querySelectorAll('.delete').forEach((tag) => {
+            tag.addEventListener('click', () => {
+                const postId = tag.parentNode.querySelector('.twit-id').value;
+                if(confirm('게시물을 삭제하시겠습니까?')){
+                    axios.delete(`/post/${postId}`)
+                        .then(() => {
+                            location.reload();
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                        });
+                }
+            });
+        });
         if (document.getElementById('img')) {
             document.getElementById('img').addEventListener('change', (e) => {
                 const formData = new FormData();
-                console.log(this, this.files);
-                formData.append('img', this.files[0]);
+                console.log(document.getElementById('img'), document.getElementById('img').files);
+                formData.append('img', document.getElementById('img').files[0]);
                 axios.post('/post/img', formData)
                     .then((res) => {
                         document.getElementById('img-url').value = res.data.url;
@@ -77,6 +99,36 @@
                                 });
                         }
                     }
+                }
+            });
+        });
+        document.querySelectorAll('.like').forEach((tag) => {
+            tag.addEventListener('click', () => {
+                const myId = document.querySelector('#my-id');
+                if(myId){
+                    const postId = tag.parentNode.querySelector('.twit-id').value;
+                    axios.post(`/user/${postId}/like`)
+                        .then(() => {
+                            location.reload();
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                        });
+                }
+            });
+        });
+        document.querySelectorAll('.unlike').forEach((tag) => {
+            tag.addEventListener('click', () => {
+                const myId = document.querySelector('#my-id');
+                if(myId){
+                    const postId = tag.parentNode.querySelector('.twit-id').value;
+                    axios.delete(`/user/${postId}/unlike`)
+                        .then(() => {
+                            location.reload();
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                        });
                 }
             });
         });
