@@ -15,5 +15,5 @@ npm install //모듈설치
 npm start
 ```
 ***
-### designed by zerocho
+
 
