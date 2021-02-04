@@ -12,4 +12,7 @@ Nodejs 교과서 개정 2판 9장 - Nodebird
 ```
 npm install //모듈설치
 //.gitignore에 있는 폴더 생성 및 파일 설치
+npm start
 ```
+***
+
